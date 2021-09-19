@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B4A45626-D5FA-4202-92D8-E8AB366BECB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimHash.Core", "src\SimHash.Core\SimHash.Core.csproj", "{4C64CB5E-44AE-4E87-A93F-7592CB94F046}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6F9C0346-DFC2-41A1-A1B7-831886EF8126}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimHash.Tests", "tests\SimHash.Tests\SimHash.Tests.csproj", "{CD37735F-6B29-44F7-A55C-3D47D3581D30}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4C64CB5E-44AE-4E87-A93F-7592CB94F046}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C64CB5E-44AE-4E87-A93F-7592CB94F046}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C64CB5E-44AE-4E87-A93F-7592CB94F046}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C64CB5E-44AE-4E87-A93F-7592CB94F046}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD37735F-6B29-44F7-A55C-3D47D3581D30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD37735F-6B29-44F7-A55C-3D47D3581D30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD37735F-6B29-44F7-A55C-3D47D3581D30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD37735F-6B29-44F7-A55C-3D47D3581D30}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4C64CB5E-44AE-4E87-A93F-7592CB94F046} = {B4A45626-D5FA-4202-92D8-E8AB366BECB7}
+		{CD37735F-6B29-44F7-A55C-3D47D3581D30} = {6F9C0346-DFC2-41A1-A1B7-831886EF8126}
+	EndGlobalSection
+EndGlobal

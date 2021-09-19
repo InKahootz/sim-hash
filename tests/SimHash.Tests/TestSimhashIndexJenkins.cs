@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using SimhashLib;
+
+using SimHashLib;
 
 namespace SimhashTests
 {
@@ -19,29 +20,29 @@ namespace SimhashTests
             testData.Add(4, "KANSAS CITY, Mo. , Oct. 1, 2015 /PRNewswire/ --\u00a0Global technology solutions company EDZ Systems announces a new product and service offering that gives business and technology managers the tools needed to find the right people for the right project, at the right time. EDZ's proprietary databases and intelligent algorithms identify the best resources available, whether they're looking through their own employee ranks, or need to go outside of the company to search for expertise worldwide.   \nEDZ Systems was founded by \n (President and CEO), \n (VP - Sales and Marketing) and \n (CFO).\u00a0 As a minority and woman owned business, our solid reputation has been established through more than 35 years of business and information technology experience. \n   \"IT professionals continuously acquire new credentials and experience with rapidly advancing technologies,\" notes \n, EDZ CFO. \"We saw a growing need for companies to capture and curate employees' evolving credentials to help IT managers effectively align and manage their people to impact the bottom line.\" \nThis new business is built around a proprietary IT management tool known as the Intelligent Resource Management System TM (IRMS).\u00a0This multi-lingual system curates client IT staff credentials: certifications, expertise, work style and measures of productivity for each resource. \n\"Businesses are struggling to maximize the talents and productivity of their people, and to outsource IT projects to teams that are the right fit,\" says EDZ President \n. \"Our matching analytics and technology go deep into expertise, culture, personality, compatibility, language, past performance and accuracy to help companies optimize their resources, their outsourced projects and their results.\" \n\"Typically, companies look for contract IT resources based on two criteria: skill sets and cost,\" noted DeZeeuw. \"We know building successful outsourcing relationships requires a lot more. We consider an organization's culture, skills, location and time zone. For example, if South Asia's time zones are a problem for U.S. clients, we can offer proven IT partners in South America .\" \nEDZ Systems can match the most qualified IT professional to complex projects that involve: The Internet of Things  Advanced Analytics  Software-defined Applications  Web-Scale IT  \n About  \nEDZ Systems (EDZ) is a global technology solutions firm providing Intelligent Global IT Solutions, a proprietary Intelligent Resource Management System TM (IRMS) and Strategic Consulting Services worldwide. Specialties include: Professional Services, Software Development, Business Transformation, Security, Enterprise Content Management, Strategy & Operations, Program Management, Enterprise Architecture, Analytics and Mobility. \nLearn more at: www.EDZSystems.com  \nLogo - http://photos.prnewswire.com/prnh/20151001/273185LOGO \n\u00a0");
         }
 
-        private SimhashIndex setUpIndex(int kValue)
+        private SimHashIndex setUpIndex(int kValue)
         {
-            Dictionary<long, Simhash> objs = new Dictionary<long, Simhash>();
+            Dictionary<long, SimHash> objs = new Dictionary<long, SimHash>();
 
             foreach (var it in testData)
             {
-                var simHash = new Simhash();
+                var simHash = new SimHash();
                 var shingling = new Shingling();
-                var features = shingling.tokenize(it.Value, 3);
+                var features = shingling.Tokenize(it.Value, 3);
                 simHash.GenerateSimhash(features);
                 objs.Add(it.Key, simHash);
 
             }
-            return new SimhashIndex(objs: objs, k: kValue);
+            return new SimHashIndex(objs: objs, k: kValue);
         }
 
         [TestMethod]
         public void test_get_near_dup_hash_jenkins_not_close()
         {
             var index = setUpIndex(1);
-            var s = new Simhash();
+            var s = new SimHash();
             s.GenerateSimhash("This is not even close to the text that is loaded by default");
-            var dups = index.get_near_dups(s);
+            var dups = index.GetNearDuplicates(s);
             Assert.AreEqual(0, dups.Count);
 
         }
@@ -51,12 +52,12 @@ namespace SimhashTests
         {
             var index = setUpIndex(1);
 
-            var s = new Simhash();
+            var s = new SimHash();
             var shingling = new Shingling();
-            var features = shingling.tokenize(testData[1], 3);
+            var features = shingling.Tokenize(testData[1], 3);
             s.GenerateSimhash(features);
 
-            var dups = index.get_near_dups(s);
+            var dups = index.GetNearDuplicates(s);
             Assert.AreEqual(1, dups.Count);
         }
     }

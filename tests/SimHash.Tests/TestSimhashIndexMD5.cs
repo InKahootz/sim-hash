@@ -1,15 +1,17 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using SimhashLib;
+
+using SimHashLib;
 
 namespace SimhashTests
 {
     [TestClass]
     public class TestSimhashIndexMD5
     {
-        private Dictionary<long, Simhash> objs = new Dictionary<long, Simhash>();
-        private SimhashIndex index;
+        private Dictionary<long, SimHash> objs = new Dictionary<long, SimHash>();
+        private SimHashIndex index;
         private Dictionary<long, string> testData = new Dictionary<long, string>();
         [TestInitialize]
         public void setUp()
@@ -19,22 +21,22 @@ namespace SimhashTests
             testData.Add(3, "This is simhash test.");
             testData.Add(4, "How are you i am fine. blar blar blar blar blar thank1");
 
-            foreach(var it in testData)
+            foreach (var it in testData)
             {
-                var simHash = new Simhash(hashingType:Simhash.HashingType.MD5);
+                var simHash = new SimHash(hashingType: SimHash.HashingType.MD5);
                 simHash.GenerateSimhash(it.Value);
                 objs.Add(it.Key, simHash);
-                
+
             }
-            index = new SimhashIndex(objs: objs, k: 10);
-           
+            index = new SimHashIndex(objs: objs, k: 10);
+
         }
         [TestMethod]
         public void test_offset_creation_with_ten()
         {
-            var dict = new Dictionary<long, Simhash>();
-            var simHashIndex = new SimhashIndex(dict, k: 10);
-            var offsets = simHashIndex.make_offsets();
+            var dict = new Dictionary<long, SimHash>();
+            var simHashIndex = new SimHashIndex(dict, k: 10);
+            var offsets = simHashIndex.MakeOffsets();
             Assert.AreEqual(0, offsets[0]);
             Assert.AreEqual(10, offsets[2]);
             Assert.IsTrue(offsets.Count == 11);
@@ -42,9 +44,9 @@ namespace SimhashTests
         [TestMethod]
         public void test_offset_creation_with_two()
         {
-            var dict = new Dictionary<long, Simhash>();
-            var simHashIndex = new SimhashIndex(dict, k: 2);
-            var offsets = simHashIndex.make_offsets();
+            var dict = new Dictionary<long, SimHash>();
+            var simHashIndex = new SimHashIndex(dict, k: 2);
+            var offsets = simHashIndex.MakeOffsets();
             Assert.AreEqual(0, offsets[0]);
             Assert.AreEqual(42, offsets[2]);
             Assert.IsTrue(offsets.Count == 3);
@@ -56,15 +58,15 @@ namespace SimhashTests
             Dictionary<long, string> testdata = new Dictionary<long, string>();
             testdata.Add(1, "How are you? I Am fine. blar blar blar blar blar Thanks.");
 
-            Dictionary<long, Simhash> simHashObjs = new Dictionary<long, Simhash>();
+            Dictionary<long, SimHash> simHashObjs = new Dictionary<long, SimHash>();
             foreach (var it in testdata)
             {
-                var simHash = new Simhash(hashingType:Simhash.HashingType.MD5);
+                var simHash = new SimHash(hashingType: SimHash.HashingType.MD5);
                 simHash.GenerateSimhash(it.Value);
                 simHashObjs.Add(it.Key, simHash);
             }
-            var simHashIndex = new SimhashIndex(objs: simHashObjs, k: 10);
-            var listOfKeys = simHashIndex.get_the_keys(simHashObjs[1]);
+            var simHashIndex = new SimHashIndex(objs: simHashObjs, k: 10);
+            var listOfKeys = SimHashIndex.GetKeys(simHashObjs[1]).ToList();
             Assert.IsTrue(listOfKeys.Count == 11);
             Assert.AreEqual("26,0", listOfKeys[0]);
             Assert.AreEqual("3,1", listOfKeys[1]);
@@ -83,33 +85,33 @@ namespace SimhashTests
         [TestMethod]
         public void test_get_near_dup_hash()
         {
-            var s1 = new Simhash(hashingType: Simhash.HashingType.MD5);
+            var s1 = new SimHash(hashingType: SimHash.HashingType.MD5);
             s1.GenerateSimhash("How are you i am fine.ablar ablar xyz blar blar blar blar blar blar blar thank");
-            var dups = index.get_near_dups(s1);
+            var dups = index.GetNearDuplicates(s1);
             Assert.AreEqual(3, dups.Count);
 
-            var s2 = new Simhash(hashingType: Simhash.HashingType.MD5);
+            var s2 = new SimHash(hashingType: SimHash.HashingType.MD5);
             s2.GenerateSimhash(testData[1]);
-            index.delete(1, s2);
-            dups = index.get_near_dups(s1);
+            index.Remove(1, s2);
+            dups = index.GetNearDuplicates(s1);
             Assert.AreEqual(2, dups.Count);
 
-            var s3 = new Simhash(hashingType: Simhash.HashingType.MD5);
+            var s3 = new SimHash(hashingType: SimHash.HashingType.MD5);
             s3.GenerateSimhash(testData[1]);
-            index.delete(1, s3);
-            dups = index.get_near_dups(s1);
+            index.Remove(1, s3);
+            dups = index.GetNearDuplicates(s1);
             Assert.AreEqual(2, dups.Count);
 
-            var s4 = new Simhash(hashingType: Simhash.HashingType.MD5);
+            var s4 = new SimHash(hashingType: SimHash.HashingType.MD5);
             s4.GenerateSimhash(testData[1]);
-            index.add(1, s4);
-            dups = index.get_near_dups(s1);
+            index.Add(1, s4);
+            dups = index.GetNearDuplicates(s1);
             Assert.AreEqual(3, dups.Count);
 
-            var s5 = new Simhash(hashingType: Simhash.HashingType.MD5);
+            var s5 = new SimHash(hashingType: SimHash.HashingType.MD5);
             s5.GenerateSimhash(testData[1]);
-            index.add(1, s5);
-            dups = index.get_near_dups(s1);
+            index.Add(1, s5);
+            dups = index.GetNearDuplicates(s1);
             Assert.AreEqual(3, dups.Count);
         }
     }

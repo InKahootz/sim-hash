@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.HashFunction;
+using System.Data.HashFunction.Jenkins;
 using System.Globalization;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SimhashLib
+namespace SimHashLib
 {
 
-    public class Simhash
+    public class SimHash
     {
-        public enum HashingType {
+        public enum HashingType
+        {
             MD5,
             Jenkins
         }
@@ -19,19 +21,20 @@ namespace SimhashLib
 
         public ulong value { get; set; }
 
-        public Simhash()
-        {
-        }
-        public Simhash(HashingType hashingType)
+        public SimHash()
+        { }
+
+        public SimHash(HashingType hashingType)
         {
             hashAlgorithm = hashingType;
         }
 
-        public Simhash(Simhash simHash)
+        public SimHash(SimHash simHash)
         {
             value = simHash.value;
         }
-        public Simhash(ulong fingerPrint)
+
+        public SimHash(ulong fingerPrint)
         {
             value = fingerPrint;
         }
@@ -39,22 +42,21 @@ namespace SimhashLib
         public void GenerateSimhash(string content)
         {
             var shingling = new Shingling();
-            var shingles = shingling.tokenize(content);
+            var shingles = shingling.Tokenize(content);
             GenerateSimhash(shingles);
         }
 
-        //playing around with hashing algorithms. turns out md5 is a touch slow.
         private HashingType hashAlgorithm = HashingType.Jenkins;
 
         public void GenerateSimhash(List<string> features)
         {
-            switch(hashAlgorithm)
+            switch (hashAlgorithm)
             {
                 case HashingType.MD5:
-                    build_by_features_md5(features);
+                    MD5Compute(features);
                     break;
                 default:
-                    build_by_features_jenkins(features);
+                    JenkinsCompute(features);
                     break;
 
             }
@@ -62,10 +64,10 @@ namespace SimhashLib
 
         public long GetFingerprintAsLong()
         {
-            return Converters.ConvertUlongToLong(value);
+            return (long)value;
         }
 
-        public int distance(Simhash another)
+        public int Distance(SimHash another)
         {
             if (fpSize != another.fpSize) throw new Exception();
             ulong x = (value ^ another.value) & (ulong.MaxValue);
@@ -77,14 +79,14 @@ namespace SimhashLib
             }
             return ans;
         }
-        private void build_by_features_jenkins(List<string> features)
+        private void JenkinsCompute(List<string> features)
         {
-            int[] v = setupFingerprint();
+            int[] v = SetupFingerprint();
             ulong[] masks = setupMasks();
 
             foreach (string feature in features)
             {
-                ulong h = hashfuncjenkins(feature);
+                ulong h = ComputeJenkinsHash(feature);
                 int w = 1;
                 for (int i = 0; i < fpSize; i++)
                 {
@@ -93,18 +95,18 @@ namespace SimhashLib
                 }
             }
 
-            value = makeFingerprint(v, masks);
+            value = Fingerprint(v, masks);
         }
-       
-        private void build_by_features_md5(List<string> features)
+
+        private void MD5Compute(List<string> features)
         {
-            int[] v = setupFingerprint();
+            int[] v = SetupFingerprint();
             ulong[] masks = setupMasks();
 
             foreach (string feature in features)
             {
                 //this is using MD5 which is REALLY slow
-                BigInteger h = hashfuncmd5(feature);
+                BigInteger h = ComputeMD5Hash(feature);
                 int w = 1;
                 for (int i = 0; i < fpSize; i++)
                 {
@@ -115,11 +117,11 @@ namespace SimhashLib
                 }
             }
 
-            value = makeFingerprint(v, masks);
+            value = Fingerprint(v, masks);
         }
 
 
-        private ulong makeFingerprint(int[] v, ulong[] masks)
+        private ulong Fingerprint(int[] v, ulong[] masks)
         {
             ulong ans = 0;
             for (int i = 0; i < fpSize; i++)
@@ -132,7 +134,7 @@ namespace SimhashLib
             return ans;
         }
 
-        private int[] setupFingerprint()
+        private int[] SetupFingerprint()
         {
             int[] v = new int[fpSize];
             for (int i = 0; i < v.Length; i++) v[i] = 0;
@@ -149,23 +151,23 @@ namespace SimhashLib
             return masks;
         }
 
-        public ulong hashfuncjenkins(string x)
+        public ulong ComputeJenkinsHash(string x)
         {
-            var jenkinsLookup3 = new JenkinsLookup3(64);
+            var jenkinsLookup3 = JenkinsLookup3Factory.Instance.Create(new JenkinsLookup3Config() { HashSizeInBits = 64 });
             var resultBytes = jenkinsLookup3.ComputeHash(x);
 
-            var y = BitConverter.ToUInt64(resultBytes,0);
+            var y = BitConverter.ToUInt64(resultBytes.Hash, 0);
 
             return y;
         }
 
-        private BigInteger hashfuncmd5(string x)
+        private BigInteger ComputeMD5Hash(string x)
         {
-            string hexValue = hashfunc_hashtostring(x);
-            BigInteger b = hashfunc_hashstringtobignasty(hexValue);
+            string hexValue = ComputeMD5HashAsHex(x);
+            BigInteger b = HexToBigIntegter(hexValue);
             return b;
         }
-        public string hashfunc_hashtostring(string x)
+        public string ComputeMD5HashAsHex(string x)
         {
             using (MD5 md5Hash = MD5.Create())
             {
@@ -180,7 +182,7 @@ namespace SimhashLib
             }
         }
 
-        public BigInteger hashfunc_hashstringtobignasty(string x)
+        public BigInteger HexToBigIntegter(string x)
         {
             BigInteger bigNumber = BigInteger.Parse(x, NumberStyles.AllowHexSpecifier);
             return bigNumber;
